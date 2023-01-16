@@ -1,13 +1,23 @@
+# Test the OpenID Connect authorization code flow using an OIDC token requested
+# from GitHub's OIDC Provider.
 name: Integration
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+on: [workflow_dispatch]
+# on:
+  # push:
+  #   branches: [ "master" ]
+  # pull_request:
+  #   branches: [ "master" ]
+
+# The job or workflow run requires a permissions setting with id-token: write.
+# You won't be able to request the OIDC JWT ID token if the permissions setting
+# for id-token is set to read or none.
+permissions:
+  id-token: write # This is required for requesting the JWT.
+  contents: read  # This is required for actions/checkout.
 
 jobs:
-  build-test:
+  integration-test:
     runs-on: ubuntu-latest
     steps:
       # NOTE: You should use the checkout action any time your workflow will
@@ -22,5 +32,14 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt -r requirements_dev.txt
-      - name: "Test"
-        run: echo "no-op"
+      - name: "Integration test"
+        run: |
+          echo "${ACTIONS_ID_TOKEN_REQUEST_URL}"
+          echo "${ACTIONS_ID_TOKEN_REQUEST_TOKEN}"
+          OIDC_TOKEN=$(curl -sSL "${ACTIONS_ID_TOKEN_REQUEST_URL}" \
+            -H "Accept: application/json; api-version=2.0" \
+            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -H "User-Agent: actions/oidc-client" \
+            --data "{}" | jq -r ".value")
+          echo "${OIDC_TOKEN}"
