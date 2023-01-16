@@ -23,9 +23,26 @@ def decode(token_string: str) -> None:
     # enough in the first place. Simply add the maximum number of padding
     # characters that you would ever need, which is two (b'==') and base64
     # will truncate any unnecessary ones.
-    print(base64.b64decode(header + '=='))
-    print(base64.b64decode(payload + '=='))
-    print(base64.b64decode(signature + '=='))
+    #
+    # Fix error:
+    #
+    #   binascii.Error: Invalid base64-encoded string: number of data
+    #   characters (333) cannot be 1 more than a multiple of 4
+    #
+    # Pad bytes such that length is a multiple of 4.
+    print(base64.b64decode(pad(header)))
+    print(base64.b64decode(pad(payload)))
+    print(base64.b64decode(pad(signature)))
+
+def pad(b: bytes) -> bytes:
+    """
+    Pad bytes such that length is a multiple of 4.
+    """
+    x = len(b) % 4
+    if x > 0:
+        return b + '=' * (4 - x) + '===='
+    else:
+        return b
 
 if __name__ == "__main__":
     decode(sys.argv[1])
