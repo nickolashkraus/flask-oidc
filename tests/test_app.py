@@ -19,8 +19,8 @@ Flask application tests.
 #
 # Make sure to include the canonical URL for the endpoint in the request.
 
+
 def test_root(client):
     resp = client.get("/v1/")
     print(resp.data)
     assert b"Hello, World!" in resp.data
-

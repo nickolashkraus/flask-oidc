@@ -4,17 +4,19 @@ Flask application test fixtures.
 
 See: https://flask.palletsprojects.com/en/2.2.x/testing/
 """
-
 import pytest
 
 from src.app import create_app
 
+
 @pytest.fixture()
 def app():
     app = create_app()
-    app.config.update({
-        "TESTING": True,
-    })
+    app.config.update(
+        {
+            "TESTING": True,
+        }
+    )
     yield app
 
 
