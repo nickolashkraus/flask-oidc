@@ -43,6 +43,7 @@ jobs:
             -H "User-Agent: actions/oidc-client" \
             --data "{}" | jq -r ".value")
           echo "${OIDC_TOKEN}"
+          python scripts/decode.py "${OIDC_TOKEN}"
           flask --app src/app.py --debug run >/dev/null 2>&1 &
           sleep 5
           FLASK_ENDPOINT='http://127.0.0.1:5000/v1/auth'

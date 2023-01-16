@@ -197,7 +197,7 @@ def fetch_github_oidc_public_key(client: FlaskOAuth2App) -> Callable:
         # Filter for the signing key using the 'kid' property from the header
         # of the decoded JWT. The signing key should have a matching 'kid'
         # property.
-        public_key = jwk_set.find_by_kid(header["kid"])
+        public_key = jwk_set.find_by_kid(header.get("kid"))
         logging.debug(f"Public key {public_key}")
         return public_key
 
