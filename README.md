@@ -1,6 +1,7 @@
 # Flask OIDC
 
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/nickolashkraus/flask-oidc/blob/master/LICENSE)
+[![GitHub Actions - Python](https://github.com/nickolashkraus/flask-oidc/actions/workflows/python.yml/badge.svg)](https://github.com/nickolashkraus/flask-oidc/actions/workflows/python.yml)
 
 An example Flask app that executes the OpenID Connect authorization code flow.
 
