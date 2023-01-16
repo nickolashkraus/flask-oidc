@@ -61,6 +61,6 @@ def root():
 
 
 @v1.route("/auth")
-@require_oidc
+@require_oidc()
 def auth():
     return "<p>Validation successful!</p>"
