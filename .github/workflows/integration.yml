@@ -49,7 +49,7 @@ jobs:
           FLASK_ENDPOINT='http://127.0.0.1:5000/v1/auth'
           curl -sSL "${FLASK_ENDPOINT}" \
             -H "Authorization: Bearer ${OIDC_TOKEN}"
-          status=$(curl -s -o /dev/null -I -w "%{http_code}" "${URL}")
+          status=$(curl -s -o /dev/null -I -w "%{http_code}" "${FLASK_ENDPOINT}")
           # Return a non-zero exit code if the status code is not 200.
           if [ "${status}" == "200" ]; then
               echo "Validation successful!"
