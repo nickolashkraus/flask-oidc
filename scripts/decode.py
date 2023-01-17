@@ -12,9 +12,11 @@ def decode(token_string: str) -> None:
 
     :type token_string: str
     :param token_string: JSON Web Token (xxxxx.yyyyy.zzzzz)
+
+    Side Effect: Outputs header, payload, and signature to standard output.
     """
     parts = token_string.split(".")
-    header, payload, signature = parts[0], parts[1], parts[2]
+    header, payload, signature = parts[0].encode(), parts[1].encode(), parts[2].encode()
     # Fix error:
     #
     #   binascii.Error: Incorrect padding
@@ -40,7 +42,7 @@ def pad(b: bytes) -> bytes:
     """
     x = len(b) % 4
     if x > 0:
-        return b + '=' * (4 - x) + '===='
+        return b + b'=' * (4 - x) + b'===='
     else:
         return b
 
