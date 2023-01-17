@@ -52,14 +52,15 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
         )
         # See: https://token.actions.githubusercontent.com/.well-known/openid-configuration
         # NOTE: ONLY claims provided in the JWT payload are validated.
+        # NOTE: Specified claims must have a non-empty value.
         self.claims_options = {
             "actor": {"essential": True},
             "actor_id": {"essential": True},
             "aud": {"essential": True},
-            "base_ref": {"essential": True},
+            # "base_ref": {"essential": True},
             "event_name": {"essential": True},
             "exp": {"essential": True},
-            "head_ref": {"essential": True},
+            # "head_ref": {"essential": True},
             "iat": {"essential": True},
             "iss": {"essential": True},
             "job_workflow_ref": {"essential": True},
