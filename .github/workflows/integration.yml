@@ -53,9 +53,9 @@ jobs:
             -o /dev/null -I -w "%{http_code}")
           # Return a non-zero exit code if the status code is not 200.
           if [ "${STATUS}" == "200" ]; then
-              echo "Validation successful!"
               exit 0
           else
+              echo ""
               echo "Validation failed!"
               exit 1
           fi
