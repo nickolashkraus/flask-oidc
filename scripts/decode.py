@@ -34,9 +34,13 @@ def decode(token_string: str) -> None:
     # Pad bytes such that length is a multiple of 4.
     print(base64.b64decode(pad(header)))
     print(base64.b64decode(pad(payload)))
-    # TODO: binascii.Error: Invalid base64-encoded string: number of data
-    # characters (329) cannot be 1 more than a multiple of 4
-    # print(base64.b64decode(pad(signature)))
+    try:
+      # TODO: binascii.Error: Invalid base64-encoded string: number of data
+      # characters (329) cannot be 1 more than a multiple of 4
+      print(base64.b64decode(pad(signature)))
+    except Exception as ex:
+        print(
+            f"An error occurred decoding the following string: {signature}\nError: {ex}\n")
 
 def pad(b: bytes) -> bytes:
     """
