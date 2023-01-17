@@ -92,7 +92,8 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
         is decoded and the JWT signature is validated using the public key of
         the OIDC token provider. Next, the JWT payload is validated to ensure
         it comprises the specified claims (ex. aud, iss, sub, etc.). Custom
-        claims (see: self.claims_options) are validated as well.
+        claims (see: self.claims_options) are validated as well. Specified
+        claims must have a non-empty value.
 
         It should be noted that GitHub's OIDC Provider uses RS256
         (asymmetric/public-key encryption) to create the signature for the JWT.
