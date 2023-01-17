@@ -16,7 +16,7 @@ def decode(token_string: str) -> None:
     Side Effect: Outputs header, payload, and signature to standard output.
     """
     parts = token_string.split(".")
-    header, payload, signature = parts[0].encode(), parts[1].encode(), parts[2].encode()
+    header, payload, signature = parts[0], parts[1], parts[2]
     # Fix error:
     #
     #   binascii.Error: Incorrect padding
@@ -42,15 +42,15 @@ def decode(token_string: str) -> None:
         print(
             f"An error occurred decoding the following string: {signature}\nError: {ex}\n")
 
-def pad(b: bytes) -> bytes:
+def pad(s: str) -> str:
     """
-    Pad bytes such that length is a multiple of 4.
+    Pad base64-encoded string such that length is a multiple of 4.
     """
-    x = len(b) % 4
+    x = len(s) % 4
     if x > 0:
-        return b + b'=' * (4 - x) + b'===='
+        return s + '=' * (4 - x) + '===='
     else:
-        return b
+        return s
 
 if __name__ == "__main__":
     decode(sys.argv[1])
