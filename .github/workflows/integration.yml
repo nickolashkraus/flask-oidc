@@ -49,6 +49,7 @@ jobs:
             -H "Authorization: Bearer ${OIDC_TOKEN}"
           # Check status code
           STATUS=$(curl -s -o /dev/null -I -w "%{http_code}" "${FLASK_ENDPOINT}")
+          echo $STATUS
           # Return a non-zero exit code if the status code is not 200.
           if [ "${STATUS}" == "200" ]; then
               echo "Validation successful!"
