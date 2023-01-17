@@ -2,12 +2,13 @@
 # from GitHub's OIDC Provider.
 name: Integration
 
-on: [workflow_dispatch]
-# on:
-  # push:
-  #   branches: [ "master" ]
-  # pull_request:
-  #   branches: [ "master" ]
+on:
+  # Only workflow to be manually triggered.
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 # The job or workflow run requires a permissions setting with id-token: write.
 # You won't be able to request the OIDC JWT ID token if the permissions setting
@@ -34,16 +35,13 @@ jobs:
           pip install -r requirements.txt -r requirements_dev.txt
       - name: "Integration test"
         run: |
-          echo "${ACTIONS_ID_TOKEN_REQUEST_URL}"
-          echo "${ACTIONS_ID_TOKEN_REQUEST_TOKEN}"
           OIDC_TOKEN=$(curl -sSL "${ACTIONS_ID_TOKEN_REQUEST_URL}" \
             -H "Accept: application/json; api-version=2.0" \
             -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
             -H "Content-Type: application/json" \
             -H "User-Agent: actions/oidc-client" \
             --data "{}" | jq -r ".value")
-          echo "${OIDC_TOKEN}"
-          # python scripts/decode.py "${OIDC_TOKEN}"
+          python scripts/decode.py "${OIDC_TOKEN}"
           flask --app src/app.py --debug run >/dev/null 2>&1 &
           sleep 5
           FLASK_ENDPOINT='http://127.0.0.1:5000/v1/auth'
