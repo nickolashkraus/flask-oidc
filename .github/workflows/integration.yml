@@ -3,7 +3,7 @@
 name: Integration
 
 on:
-  # Only workflow to be manually triggered.
+  # Allow workflow to be manually triggered.
   workflow_dispatch:
   push:
     branches: [ "master" ]
@@ -47,13 +47,13 @@ jobs:
           FLASK_ENDPOINT='http://127.0.0.1:5000/v1/auth'
           curl -sSL "${FLASK_ENDPOINT}" \
             -H "Authorization: Bearer ${OIDC_TOKEN}"
-          # TODO
-          # status=$(curl -s -o /dev/null -I -w "%{http_code}" "${FLASK_ENDPOINT}")
-          # # Return a non-zero exit code if the status code is not 200.
-          # if [ "${status}" == "200" ]; then
-          #     echo "Validation successful!"
-          #     exit 0
-          # else
-          #     echo "Validation failed!"
-          #     exit 1
-          # fi
+          # Check status code
+          STATUS=$(curl -s -o /dev/null -I -w "%{http_code}" "${FLASK_ENDPOINT}")
+          # Return a non-zero exit code if the status code is not 200.
+          if [ "${STATUS}" == "200" ]; then
+              echo "Validation successful!"
+              exit 0
+          else
+              echo "Validation failed!"
+              exit 1
+          fi
