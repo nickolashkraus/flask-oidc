@@ -53,17 +53,17 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
         # See: https://token.actions.githubusercontent.com/.well-known/openid-configuration
         self.claims_options = {
             # standard claims
-            # "alg": {"essential": True},
-            "aud": {"essential": True},
+            "alg": {"essential": True},
+            # "aud": {"essential": True},
             # "exp": {"essential": True},
             # "iat": {"essential": True},
             # "iss": {"essential": True},
             # "jti": {"essential": True},
-            # "kid": {"essential": True},
+            "kid": {"essential": True},
             # "nbf": {"essential": True},
             # "sub": {"essential": True},
-            # "typ": {"essential": True},
-            # "x5t": {"essential": True},
+            "typ": {"essential": True},
+            "x5t": {"essential": True},
             # custom claims
             # "actor": {"essential": True},
             # "actor_id": {"essential": True},
