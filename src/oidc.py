@@ -53,24 +53,19 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
         # See: https://token.actions.githubusercontent.com/.well-known/openid-configuration
         # NOTE: ONLY claims provided in the JWT payload are validated.
         self.claims_options = {
-            # standard claims
-            "aud": {"essential": True},
-            "exp": {"essential": True},
-            "iat": {"essential": True},
-            "iss": {"essential": True},
-            "jti": {"essential": True},
-            "nbf": {"essential": True},
-            "sub": {"essential": True},
-            # custom claims
             "actor": {"essential": True},
             "actor_id": {"essential": True},
+            "aud": {"essential": True},
             "base_ref": {"essential": True},
-            # "environment": {"essential": True},
-            # "environment_node_id": {"essential": True},
             "event_name": {"essential": True},
+            "exp": {"essential": True},
             "head_ref": {"essential": True},
+            "iat": {"essential": True},
+            "iss": {"essential": True},
             "job_workflow_ref": {"essential": True},
             "job_workflow_sha": {"essential": True},
+            "jti": {"essential": True},
+            "nbf": {"essential": True},
             "ref": {"essential": True},
             "ref_type": {"essential": True},
             "repository": {"essential": True},
@@ -82,6 +77,7 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
             "run_id": {"essential": True},
             "run_number": {"essential": True},
             "sha": {"essential": True},
+            "sub": {"essential": True},
             "workflow": {"essential": True},
             "workflow_ref": {"essential": True},
             "workflow_sha": {"essential": True},
