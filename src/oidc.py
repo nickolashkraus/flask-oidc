@@ -54,19 +54,20 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
         # NOTE: ONLY claims provided in the JWT payload are validated.
         # NOTE: Specified claims must have a non-empty value.
         self.claims_options = {
-            "actor": {"essential": True},
-            "actor_id": {"essential": True},
+            # standard claims
             "aud": {"essential": True},
-            # "base_ref": {"essential": True},
-            "event_name": {"essential": True},
             "exp": {"essential": True},
-            # "head_ref": {"essential": True},
             "iat": {"essential": True},
             "iss": {"essential": True},
-            "job_workflow_ref": {"essential": True},
-            "job_workflow_sha": {"essential": True},
             "jti": {"essential": True},
             "nbf": {"essential": True},
+            "sub": {"essential": True},
+            # custom claims
+            "actor": {"essential": True},
+            "actor_id": {"essential": True},
+            "event_name": {"essential": True},
+            "job_workflow_ref": {"essential": True},
+            "job_workflow_sha": {"essential": True},
             "ref": {"essential": True},
             "ref_type": {"essential": True},
             "repository": {"essential": True},
@@ -78,10 +79,12 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
             "run_id": {"essential": True},
             "run_number": {"essential": True},
             "sha": {"essential": True},
-            "sub": {"essential": True},
             "workflow": {"essential": True},
             "workflow_ref": {"essential": True},
             "workflow_sha": {"essential": True},
+            # The following custom claims may be empty:
+            # "base_ref": {"essential": True},
+            # "head_ref": {"essential": True},
         }
 
     def authenticate_token(self, token_string: str) -> dict:
