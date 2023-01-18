@@ -55,12 +55,21 @@ def create_app():
     return app
 
 
+# A "Hello, World!" Flask endpoint.
 @v1.route("/")
 def root():
     return "<p>Hello, World!</p>"
 
 
+# An endpoint protected using OIDC authentication.
 @v1.route("/auth")
 @require_oidc()
 def auth():
+    return "<p>Validation successful!</p>"
+
+# An endpoint protected using OIDC authentication for generating a presigned
+# URL to upload an object to S3.
+@v1.route("/presigned")
+@require_oidc()
+def presigned():
     return "<p>Validation successful!</p>"
