@@ -45,6 +45,7 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
     For a full list of custom claims, see the GitHub documentation:
       * https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect
     """
+
     # TODO: Add docstring for function parameters.
     def __init__(self, public_key, issuer=None, realm=None, **extra_attributes):
         super(GitHubActionsOIDCTokenValidator, self).__init__(
