@@ -18,7 +18,7 @@ permissions:
   contents: read  # This is required for actions/checkout.
 
 jobs:
-  integration-test:
+  test:
     runs-on: ubuntu-latest
     steps:
       # NOTE: You should use the checkout action any time your workflow will
@@ -41,6 +41,11 @@ jobs:
             -H "Content-Type: application/json" \
             -H "User-Agent: actions/oidc-client" \
             --data "{}" | jq -r ".value")
+          # Decode JWT and output its header, payload, and signature.
+          #
+          # GitHub Actions automatically redacts secrets printed to the log. To
+          # circumvent this "feature", a simple Python script is used to output
+          # the contents of the JWT.
           python scripts/decode.py "${OIDC_TOKEN}"
           flask --app src/app.py --debug run >/dev/null 2>&1 &
           sleep 5
@@ -56,6 +61,6 @@ jobs:
               exit 0
           else
               echo ""
-              echo "Validation failed!"
+              echo "Validation failed! Status: ${STATUS}"
               exit 1
           fi
