@@ -1,0 +1,50 @@
+# Demo the OpenID Connect authorization code flow using an OIDC token requested
+# from GitHub's OIDC Provider.
+name: Demo
+
+on:
+  # Allow workflow to be manually triggered.
+  workflow_dispatch:
+
+# The job or workflow run requires a permissions setting with id-token: write.
+# You won't be able to request the OIDC JWT ID token if the permissions setting
+# for id-token is set to read or none.
+permissions:
+  id-token: write # This is required for requesting the JWT.
+  contents: read  # This is required for actions/checkout.
+
+jobs:
+  test:
+    # To specify a self-hosted runner for your job, configure runs-on in your
+    # workflow file with self-hosted runner labels. All self-hosted runners
+    # have the self-hosted label.
+    runs-on: self-hosted
+    steps:
+      # NOTE: You should use the checkout action any time your workflow will
+      # run against the repository's code.
+      # See: https://github.com/marketplace/actions/checkout
+      - uses: actions/checkout@v3
+      # See: https://github.com/marketplace/actions/setup-python
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      # Example action
+      # - use: actions/gha-store-artifacts@1
+      #   with:
+      #     artifact: /path/to/artifact
+
+      - name: "Demo"
+        run: |
+          OIDC_TOKEN=$(curl -sSL "${ACTIONS_ID_TOKEN_REQUEST_URL}" \
+            -H "Accept: application/json; api-version=2.0" \
+            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -H "User-Agent: actions/oidc-client" \
+            --data "{}" | jq -r ".value")
+         FLASK_ENDPOINT='flask-oidc.default.svc.cluster.local:5000'
+         curl -POST -sSL "${FLASK_ENDPOINT}/v1"
+         # FLASK_ENDPOINT='flask-oidc.default.svc.cluster.local:5000'
+         # curl -POST -sSL "${FLASK_ENDPOINT}/v1/presigned?demo=true" \
+         #   -H "Authorization: Bearer ${OIDC_TOKEN}" \
+         #   --data '{"bucket": "flask-oidc", "key": "demo.txt"}'
