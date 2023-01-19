@@ -28,12 +28,10 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: 3.11
-
       # Example action
       # - use: actions/gha-store-artifacts@1
       #   with:
       #     artifact: /path/to/artifact
-
       - name: "Demo"
         run: |
           OIDC_TOKEN=$(curl -sSL "${ACTIONS_ID_TOKEN_REQUEST_URL}" \
@@ -42,8 +40,8 @@ jobs:
             -H "Content-Type: application/json" \
             -H "User-Agent: actions/oidc-client" \
             --data "{}" | jq -r ".value")
-         FLASK_ENDPOINT='flask-oidc.default.svc.cluster.local:5000'
-         curl -POST -sSL "${FLASK_ENDPOINT}/v1"
+          FLASK_ENDPOINT='flask-oidc.default.svc.cluster.local:5000'
+          curl -POST -sSL "${FLASK_ENDPOINT}/v1"
          # FLASK_ENDPOINT='flask-oidc.default.svc.cluster.local:5000'
          # curl -POST -sSL "${FLASK_ENDPOINT}/v1/presigned?demo=true" \
          #   -H "Authorization: Bearer ${OIDC_TOKEN}" \
