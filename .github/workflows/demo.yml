@@ -34,15 +34,33 @@ jobs:
       #     artifact: /path/to/artifact
       - name: "Demo"
         run: |
+          # 0. Generate build artifact.
+          echo "Hello, World!" > "demo.txt"
+          # 1. Request an OIDC token.
           OIDC_TOKEN=$(curl -sSL "${ACTIONS_ID_TOKEN_REQUEST_URL}" \
             -H "Accept: application/json; api-version=2.0" \
             -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
             -H "Content-Type: application/json" \
             -H "User-Agent: actions/oidc-client" \
             --data "{}" | jq -r ".value")
+          # 2. Make a POST request to the endpoint.
           FLASK_ENDPOINT='flask-oidc.default.svc.cluster.local:5000'
-          curl -POST -sSL "${FLASK_ENDPOINT}/v1"
-         # FLASK_ENDPOINT='flask-oidc.default.svc.cluster.local:5000'
-         # curl -POST -sSL "${FLASK_ENDPOINT}/v1/presigned?demo=true" \
-         #   -H "Authorization: Bearer ${OIDC_TOKEN}" \
-         #   --data '{"bucket": "flask-oidc", "key": "demo.txt"}'
+          RESPONSE=$(curl -X POST -sSL "${FLASK_ENDPOINT}/v1/presigned" \
+            -H "Authorization: Bearer ${OIDC_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"bucket": "flask-oidc", "key": "demo.txt"}')
+          # 3. Upload the object to S3.
+          URL=$(echo "${RESPONSE}" | jq '.url' | tr -d '\"')
+          AWSACCESSKEYID=$(echo "${RESPONSE}" | jq '.fields.AWSAccessKeyId' | tr -d '\"')
+          KEY=$(echo "${RESPONSE}" | jq '.fields.key' | tr -d '\"')
+          POLICY=$(echo "${RESPONSE}" | jq '.fields.policy' | tr -d '\"')
+          SIGNATURE=$(echo "${RESPONSE}" | jq '.fields.signature' | tr -d '\"')
+          # NOTE: Bucket POST must be of the enclosure-type
+          # multipart/form-data.
+          curl -X POST "${URL}" \
+            -H "Content-Type: multipart/form-data" \
+            -F "AWSAccessKeyId=${AWSACCESSKEYID}" \
+            -F "key=${KEY}" \
+            -F "policy=${POLICY}" \
+            -F "signature=${SIGNATURE}" \
+            -F file=@demo.txt
