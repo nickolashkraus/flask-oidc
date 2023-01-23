@@ -17,6 +17,7 @@ def decode(token_string: str) -> None:
     """
     parts = token_string.split(".")
     header, payload, signature = parts[0], parts[1], parts[2]
+    print(f"Header: {header}\nPayload: {payload}\nSignature: {signature}")
     for x in [header, payload]:
         try:
             # NOTE: The header and payload of the JWT are base64url encoded.
