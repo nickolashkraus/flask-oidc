@@ -20,6 +20,12 @@ Run the Flask development server in debug mode:
 $ flask --app src/app.py --debug run
 ```
 
+**NOTE**: To build the image for x86 architectures on ARM64 (ex. Apple M1), run the following:
+
+```bash
+$ docker buildx build --platform=linux/amd64 -t nickolashkraus/flask-oidc:latest -f Dockerfile .
+```
+
 ## References
 * [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html)
 * [Introduction to JSON Web Tokens](https://jwt.io/introduction)
