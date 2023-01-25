@@ -12,7 +12,7 @@ store long-lived credentials.
 
 See:
   * https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect
-"""
+"""  # noqa
 import logging
 from typing import Any, Callable
 
@@ -22,12 +22,14 @@ from authlib.oauth2.rfc7523 import JWTBearerTokenValidator
 from flask import g
 
 # GitHub OpenID Provider issuer URI
-# See: https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery
-OPENID_ISSUER_URI = "https://token.actions.githubusercontent.com"
+# See: https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery  # noqa
+GITHUB_OPENID_ISSUER_URI = "https://token.actions.githubusercontent.com"
 
 # GitHub OpenID Provider configuration URI
-# See: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig
-OPENID_CONFIGURATION_URI = f"{OPENID_ISSUER_URI}/.well-known/openid-configuration"
+# See: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig  # noqa
+GITHUB_OPENID_CONFIGURATION_URI = (
+    f"{GITHUB_OPENID_ISSUER_URI}/.well-known/openid-configuration"
+)
 
 
 class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
@@ -44,16 +46,29 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
 
     For a full list of custom claims, see the GitHub documentation:
       * https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect
-    """
+    """  # noqa
 
-    # TODO: Add docstring for function parameters.
-    def __init__(self, public_key, issuer=None, realm=None, **extra_attributes):
+    def __init__(self, public_key: str, issuer: str = None) -> None:
         super(GitHubActionsOIDCTokenValidator, self).__init__(
-            public_key, issuer, realm, **extra_attributes
+            public_key=public_key, issuer=issuer
         )
-        # See: https://token.actions.githubusercontent.com/.well-known/openid-configuration
-        # NOTE: ONLY claims provided in the JWT payload are validated.
-        # NOTE: Specified claims must have a non-empty value.
+        """
+        Create a new `GitHubActionsOIDCTokenValidator` object.
+
+        :type public_key: str
+        :param public_key: Public key of the OIDC token provider.
+        :type issuer: str
+        :param issuer: OpenID Provider issuer URI.
+
+        :rtype: None
+        :return: None
+        """
+        # NOTE:
+        #   * ONLY claims provided in the JWT payload are validated.
+        #   * Specified claims must have a non-empty value.
+        #   * This overwrites `self.claims_options` of the parent class.
+        #
+        # See: https://token.actions.githubusercontent.com/.well-known/openid-configuration  # noqa
         self.claims_options = {
             # standard claims
             "aud": {"essential": True},
@@ -87,6 +102,8 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
             # "base_ref": {"essential": True},
             # "head_ref": {"essential": True},
         }
+        if issuer:
+            self.claims_options["iss"] = {"essential": True, "value": issuer}
 
     def authenticate_token(self, token_string: str) -> dict:
         """
@@ -118,7 +135,7 @@ class GitHubActionsOIDCTokenValidator(JWTBearerTokenValidator):
         :return: Dictionary of 'claims_supported'
           See: https://token.actions.githubusercontent.com/.well-known/openid-configuration
           for a list of the Claim Names.
-        """
+        """  # noqa
         result = super(GitHubActionsOIDCTokenValidator, self).authenticate_token(
             token_string=token_string
         )
@@ -147,7 +164,7 @@ def fetch_github_oidc_public_key(client: FlaskOAuth2App) -> Callable:
 
     Inspired by:
       * https://github.com/lepture/authlib/commit/695af265255853310c905dcd48b439955148516f#r48195848
-    """
+    """  # noqa
     # TODO: Add caching, since this implmentation retrieves the JWKS on every
     # invocation of client.fetch_jwk_set.
     def resolve_public_key(header: dict[str, Any], _: dict[str, Any]) -> str:
@@ -187,7 +204,7 @@ def fetch_github_oidc_public_key(client: FlaskOAuth2App) -> Callable:
         :param header: JSON Web Token (JWT) header
         :type _: dict[str, Any]
         :param _: Throwaway parameter. Required, but not used.
-        """
+        """  # noqa
         # The JSON Web Key Set (JWKS) is a set of keys containing the public
         # keys used to verify any JSON Web Token (JWT) issued by the
         # Authorization Server and signed using the RS256 signing algorithm.
