@@ -30,6 +30,7 @@ $ docker buildx build --platform=linux/amd64 -t nickolashkraus/flask-oidc:latest
 * [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html)
 * [Introduction to JSON Web Tokens](https://jwt.io/introduction)
 * [JSON Web Key Sets](https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets)
+* [JSON Web Key Set Properties](https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-set-properties)
 * [Locate JSON Web Key Sets](https://auth0.com/docs/secure/tokens/json-web-tokens/locate-json-web-key-sets)
 * [About security hardening with OpenID Connect](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect)
 
