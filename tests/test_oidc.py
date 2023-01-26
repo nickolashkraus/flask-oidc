@@ -2,7 +2,6 @@
 """
 OIDC authentication tests.
 """
-
 import os
 import unittest
 from unittest.mock import patch
