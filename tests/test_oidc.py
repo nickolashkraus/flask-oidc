@@ -2,28 +2,12 @@
 """
 OIDC authentication tests.
 """
-import os
 import unittest
 from unittest.mock import patch
 
 from src import oidc
 
-PUBLIC_KEY = os.path.join(os.path.dirname(__file__), "data/RS256.pub")
-
-
-def _read_public_key() -> str:
-    """
-    Read public key for signing JWTs using the RS256 signing algorithm.
-
-    :rtype: str
-    :return: Public key
-    """
-    with open(PUBLIC_KEY, "r") as f:
-        # Read lines of the file and remove trailing newline characters.
-        lines = [x.rstrip() for x in f.readlines()]
-        # Join lines, omitting first and last line.
-        public_key = "".join(lines[1:-1])
-    return public_key
+from . import utils
 
 
 class GitHubActionsOIDCTokenValidator(unittest.TestCase):
@@ -31,7 +15,7 @@ class GitHubActionsOIDCTokenValidator(unittest.TestCase):
         super(GitHubActionsOIDCTokenValidator, self).setUp()
         self.addCleanup(patch.stopall)
         self.g = oidc.GitHubActionsOIDCTokenValidator(
-            public_key=_read_public_key(),
+            public_key=utils.read_public_key(),
             issuer=oidc.GITHUB_OPENID_ISSUER_URI,
         )
 
