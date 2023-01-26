@@ -13,11 +13,11 @@ store long-lived credentials.
 See:
   * https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect
 """  # noqa
-import logging
 from typing import Any, Callable
 
 from authlib.integrations.flask_client import FlaskOAuth2App
 from authlib.jose import JsonWebKey
+from authlib.jose.rfc7518.rsa_key import RSAKey
 from authlib.oauth2.rfc7523 import JWTBearerTokenValidator
 from flask import g
 
@@ -167,7 +167,7 @@ def fetch_github_oidc_public_key(client: FlaskOAuth2App) -> Callable:
     """  # noqa
     # TODO: Add caching, since this implmentation retrieves the JWKS on every
     # invocation of client.fetch_jwk_set.
-    def resolve_public_key(header: dict[str, Any], _: dict[str, Any]) -> str:
+    def resolve_public_key(header: dict[str, Any], _: dict[str, Any]) -> RSAKey:
         """
         Resolve the public key used to verify the JSON Web Token (JWT).
 
@@ -204,6 +204,10 @@ def fetch_github_oidc_public_key(client: FlaskOAuth2App) -> Callable:
         :param header: JSON Web Token (JWT) header
         :type _: dict[str, Any]
         :param _: Throwaway parameter. Required, but not used.
+
+        :rtype: RSAKey
+        :return: Object representing a JSON Web Key using the RS256 signing
+          algorithm. See: authlib/jose/rfc7518/rsa_key.py.
         """  # noqa
         # The JSON Web Key Set (JWKS) is a set of keys containing the public
         # keys used to verify any JSON Web Token (JWT) issued by the
@@ -214,9 +218,10 @@ def fetch_github_oidc_public_key(client: FlaskOAuth2App) -> Callable:
         jwk_set = JsonWebKey.import_key_set(client.fetch_jwk_set(force=True))
         # Filter for the signing key using the 'kid' property from the header
         # of the decoded JWT. The signing key should have a matching 'kid'
-        # property.
+        # property. The 'x5c' property contains the public key.
+        #
+        # See: https://www.rfc-editor.org/rfc/rfc7517#section-4.7
         public_key = jwk_set.find_by_kid(header.get("kid"))
-        logging.debug(f"Public key {public_key}")
         return public_key
 
     return resolve_public_key
