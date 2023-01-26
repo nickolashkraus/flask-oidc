@@ -45,6 +45,9 @@ require_oidc = ResourceProtector()
 # Flask will automatically detect the factory if it is named create_app or
 # make_app.
 def create_app():
+    """
+    Flask app factory.
+    """
     app = Flask(__name__)
     app.register_blueprint(v1)
     # Configure OAuth (OIDC)
@@ -52,11 +55,13 @@ def create_app():
     # NOTE: OpenID Connect 1.0 is a identity layer on top of the OAuth 2.0
     # protocol.
     oauth = OAuth(app)
-    oauth.register(name="github", server_metadata_url=oidc.OPENID_CONFIGURATION_URI)
+    oauth.register(
+        name="github", server_metadata_url=oidc.GITHUB_OPENID_CONFIGURATION_URI
+    )
     # Configure and register 'require_oidc' Flask decorator.
     oidc_token_validator = oidc.GitHubActionsOIDCTokenValidator(
         public_key=oidc.fetch_github_oidc_public_key(oauth.github),
-        issuer=oidc.OPENID_ISSUER_URI,
+        issuer=oidc.GITHUB_OPENID_ISSUER_URI,
     )
     require_oidc.register_token_validator(oidc_token_validator)
     return app
@@ -84,7 +89,7 @@ def auth():
 
 
 @v1.route("/presigned", methods=["POST"])
-# @require_oidc()
+@require_oidc()
 def presigned() -> (str, int):
     """
     An endpoint protected using OIDC authentication for generating a presigned
@@ -103,8 +108,8 @@ def presigned() -> (str, int):
       Content-Type: application/json
 
       {
-        "bucket": "bucket",
-        "key": key
+        "bucket": <bucket>,
+        "key": <key>
       }
 
     Example:
@@ -114,7 +119,7 @@ def presigned() -> (str, int):
 
     :rtype: flask.Response
     :return: Response object to return
-    """
+    """  # noqa
     # TODO: Use case insensitive dict.
     data = request.get_json()
     bucket, key = data.get("bucket"), data.get("key")
@@ -140,12 +145,12 @@ def presigned() -> (str, int):
         # request.
         url = resp.get_json().get("url")
         data = resp.get_json().get("fields")
-        filename = os.path.join(os.path.dirname(__file__), "demo.txt")
+        filename = os.path.join(os.path.dirname(__file__), "data/demo.txt")
         with open(filename, "rb") as f:
             # 'files' is a dictionary of {'name': file-tuple} where
             # 'file-tuple' is a 2-tuple ('filename', fileobj).
             #
-            # See: https://requests.readthedocs.io/en/latest/api/#requests.request
+            # See: https://requests.readthedocs.io/en/latest/api/#requests.request  # noqa
             files = {"file": ("demo.txt", f)}
             r = requests.post(url=url, data=data, files=files)
             r.raise_for_status()
@@ -180,7 +185,7 @@ def generate_presigned_post(bucket: str, key: str) -> dict:
       "url" is the URL to post to. "fields" is a dictionary filled with the
       form fields and respective values to use when submitting the POST request
       to upload the object to S3. See above example.
-    """
+    """  # noqa
     s3_client = boto3.client("s3")
     try:
         resp = s3_client.generate_presigned_post(
