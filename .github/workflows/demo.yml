@@ -1,5 +1,10 @@
 # Demo the OpenID Connect authorization code flow using an OIDC token requested
 # from GitHub's OIDC Provider.
+#
+# Prerequisites:
+#   1. Amazon EKS cluster
+#   2. GitHub self-hosted runner
+#   3. Permission to perform the PutObject operation on the given bucket
 name: Demo
 
 on:
@@ -64,3 +69,10 @@ jobs:
             -F "policy=${POLICY}" \
             -F "signature=${SIGNATURE}" \
             -F file=@demo.txt
+          # NOTE: The following can also be used to test the /presigned
+          # endpoint:
+          #
+          # curl -X POST -sSL "${FLASK_ENDPOINT}/v1/presigned?demo=true" \
+          #   -H "Authorization: Bearer ${OIDC_TOKEN}" \
+          #   -H "Content-Type: application/json" \
+          #   --data '{"bucket": "flask-oidc", "key": "demo.txt"}'
