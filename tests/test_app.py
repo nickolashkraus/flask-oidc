@@ -31,6 +31,7 @@ from . import utils
 #
 # Make sure to include the canonical URL for the endpoint in the request.
 
+
 class MockResourceProtector(flask_oauth2.ResourceProtector):
     """
     Mock ResourceProtector class.
@@ -65,7 +66,9 @@ class MockResourceProtector(flask_oauth2.ResourceProtector):
                 # Add debug logging:
                 logging.debug("Calling mocked ResourceProtector.")
                 return f(*args, **kwargs)
+
             return decorated
+
         return wrapper
 
 
