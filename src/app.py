@@ -10,7 +10,7 @@ import requests
 from authlib.integrations.flask_client import OAuth
 from authlib.integrations.flask_oauth2 import ResourceProtector
 from botocore.exceptions import ClientError
-from flask import Blueprint, Flask, jsonify, request
+from flask import Blueprint, Flask, jsonify, request, Response
 
 from src import oidc
 
@@ -90,7 +90,7 @@ def auth():
 
 @v1.route("/presigned", methods=["POST"])
 @require_oidc()
-def presigned() -> (str, int):
+def presigned() -> Response:
     """
     An endpoint protected using OIDC authentication for generating a presigned
     POST request to upload an object to S3.
@@ -127,17 +127,17 @@ def presigned() -> (str, int):
         resp = jsonify(
             message="Bad Request: S3 bucket and/or key not provided in request"
         )
-        resp.status = 400
+        resp.status_code = 400
         return resp
     try:
         resp = jsonify(generate_presigned_post(bucket=bucket, key=key))
-        resp.status = 200
+        resp.status_code = 200
     except ClientError as ex:
         resp = jsonify(
             message=f"Internal Server Error: An error occurred generating the "
             f"presigned POST request:\nError: {ex}\n"
         )
-        resp.status = 500
+        resp.status_code = 500
     # Example for using the presigned POST request
     if request.args.get("demo") == "true":
         # NOTE: The generated presigned URL includes both a URL and additional
