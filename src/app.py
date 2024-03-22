@@ -10,7 +10,7 @@ import requests
 from authlib.integrations.flask_client import OAuth
 from authlib.integrations.flask_oauth2 import ResourceProtector
 from botocore.exceptions import ClientError
-from flask import Blueprint, Flask, jsonify, request, Response
+from flask import Blueprint, Flask, Response, jsonify, request
 
 from src import oidc
 
@@ -130,7 +130,8 @@ def presigned() -> Response:
         resp.status_code = 400
         return resp
     try:
-        resp = jsonify(generate_presigned_post(bucket=bucket, key=key))
+        tagging = {"Key1": "Value1", "Key2": "Value2", "Foo": "Bar", "RETAIN_1": ""}
+        resp = jsonify(generate_presigned_post(bucket=bucket, key=key, tagging=tagging))
         resp.status_code = 200
     except ClientError as ex:
         resp = jsonify(
@@ -151,13 +152,17 @@ def presigned() -> Response:
             # 'file-tuple' is a 2-tuple ('filename', fileobj).
             #
             # See: https://requests.readthedocs.io/en/latest/api/#requests.request  # noqa
-            files = {"file": ("demo.txt", f)}
-            r = requests.post(url=url, data=data, files=files)
+            files = {"file": ("demo.txt", f), "tagging": (None, data.get("tagging"))}
+            r = requests.post(
+                url=url,
+                data=data,
+                files=files,
+            )
             r.raise_for_status()
     return resp
 
 
-def generate_presigned_post(bucket: str, key: str) -> dict:
+def generate_presigned_post(bucket: str, key: str, tagging: dict = {}) -> dict:
     """
     Generate a presigned POST request to upload an object to S3.
 
@@ -175,10 +180,18 @@ def generate_presigned_post(bucket: str, key: str) -> dict:
 
     See: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html?highlight=presigned#S3.Client.generate_presigned_post
 
+    A note on tagging...
+
+      The use of XML format for tagging is a result of the underlying S3 REST
+      API design for object tagging. When you work directly with the S3 API,
+      the PutObjectTagging operation expects tags to be provided in XML format.
+
     :type bucket: str
     :param bucket: Name of the S3 bucket.
     :type key: str
     :param key: Name of the S3 object key.
+    :type tagging: dict
+    :param tagging: Tags to add to the S3 object.
 
     :rtype: dict
     :return: Dictionary with two keys: "url" and "fields".
@@ -187,9 +200,24 @@ def generate_presigned_post(bucket: str, key: str) -> dict:
       to upload the object to S3. See above example.
     """  # noqa
     s3_client = boto3.client("s3")
+    # Generate tag-set for the object.
+    tagging_tpl = Template("<Tagging><TagSet>$tag_set</TagSet></Tagging>")
+    tag_tpl = Template("<Tag><Key>$key</Key><Value>$value</Value></Tag>")
+    fields, conditions = {}, []
+    if tagging:
+        tag_set = ""
+        for k, v in tagging.items():
+            tag_set += tag_tpl.substitute({"key": k, "value": v})
+        tagging_xml = tagging_tpl.substitute({"tag_set": tag_set})
+        fields = {"tagging": tagging_xml}
+        conditions = [fields]
     try:
         resp = s3_client.generate_presigned_post(
-            Bucket=bucket, Key=key, ExpiresIn=EXPIRES_IN
+            Bucket=bucket,
+            Key=key,
+            Fields=fields,
+            Conditions=conditions,
+            ExpiresIn=EXPIRES_IN,
         )
     except ClientError:
         raise

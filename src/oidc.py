@@ -165,6 +165,7 @@ def fetch_github_oidc_public_key(client: FlaskOAuth2App) -> Callable:
     Inspired by:
       * https://github.com/lepture/authlib/commit/695af265255853310c905dcd48b439955148516f#r48195848
     """  # noqa
+
     # TODO: Add caching, since this implmentation retrieves the JWKS on every
     # invocation of client.fetch_jwk_set.
     def resolve_public_key(header: dict[str, Any], _: dict[str, Any]) -> RSAKey:
